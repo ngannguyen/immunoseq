@@ -1,22 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.6
 
 #nknguyen at soe ucsc edu
 #Feb 14 2012
 #Immuno-seq pipeline
-
-import os, sys, re, time
-import xml.etree.ElementTree as ET
-
-from jobTree.scriptTree.target import Target
-from jobTree.scriptTree.stack import Stack
-
-from sonLib.bioio import logger
-from sonLib.bioio import system
-from sonLib.bioio import getTempDirectory
-from sonLib.bioio import setLogLevel
-
-#import immunoseq.lib.immunoseqLib as iseqlib
-import immunoseqLib as iseqlib
 
 '''
 Immuno seq pipepline
@@ -43,6 +29,20 @@ Outputs/Functions:
     6/ (Differential expression of clones: heatmap where columns = samples and rows = clones.) 
     7/ Clustering...
 '''
+
+import os, sys, re, time
+import xml.etree.ElementTree as ET
+
+from jobTree.scriptTree.target import Target
+from jobTree.scriptTree.stack import Stack
+
+from sonLib.bioio import logger
+from sonLib.bioio import system
+from sonLib.bioio import getTempDirectory
+from sonLib.bioio import setLogLevel
+
+#import immunoseq.lib.immunoseqLib as iseqlib
+import immunoseqLib as iseqlib
 
 ##############################################################################################
 #============= ADAPTIVE BIOTECHNOLOGIES FILE PROCESSING: TSVs TO FASTAs =====================#
@@ -71,11 +71,12 @@ class AdaptiveBioPreProcess( Target ):
 
 class AdaptiveBioTsvToFa( Target ):
     def __init__(self, indir, outdir, collapse, tsvfile, sequenceStatus, uniqV, uniqJ):
+        Target.__init__(self, time=0.00025)
         self.indir = indir
         self.outdir = outdir
         self.collapse = collapse
         self.tsvfile = tsvfile
-        self.seqstatus = sequenceStatus
+        self.status = sequenceStatus
         self.uniqv = uniqV
         self.uniqj = uniqJ
 
@@ -246,36 +247,41 @@ class VJusage( Target ):
         
         #move average and std files to avr dir
         avrdir = os.path.join(vjdir, 'avrAll')
+        system("mkdir -p %s" %avrdir)
         system("mv %s/average_* %s" %(vjdir, avrdir))
         system("mv %s/std_* %s" %(vjdir, avrdir))
         
         #usage plots and ttest:
-        plotdir = os.path.join(self.outdir, "plots")
+        plotdir = os.path.join(self.outdir, "plots") #outdir/vjusage/plots
         system("mkdir -p %s" %plotdir)
         
         #uniq sequences, absolute count:
         absUniqDir = os.path.join(plotdir, "absUniq")
-        system("mkdir -p %s" %absUniqDir)
-        system("mv *_abs_uniq-vj.txt %s" %( absUniqDir))
-        self.addChildTarget( VJusagePlot(vjdir, absUniqDir, None, True, self.group2samples, True) )
+        absUniqVjDir = os.path.join(plotdir, "absUniq", 'vj')
+        system("mkdir -p %s" %absUniqVjDir)
+        system("mv %s/*_abs_uniq-vj.txt %s" %(vjdir, absUniqVjDir))
+        self.addChildTarget( VJusagePlot(absUniqVjDir, absUniqDir, None, True, self.group2samples, True) )
 
         #uniq sequences, relative count:
         relUniqDir = os.path.join(plotdir, "relUniq")
-        system("mkdir -p %s" %relUniqDir)
-        system("mv %_uniq-vj.txt %s" %relUniqDir)
-        self.addChildTarget( VJusagePlot(vjdir, relUniqDir, None, True, self.group2samples, True) )
+        relUniqVjDir = os.path.join(plotdir, "relUniq", 'vj')
+        system("mkdir -p %s" %relUniqVjDir)
+        system("mv %s/*_uniq-vj.txt %s" % (vjdir, relUniqVjDir))
+        self.addChildTarget( VJusagePlot(relUniqVjDir, relUniqDir, None, True, self.group2samples, True) )
 
         #reads, absolute count
         absAllDir = os.path.join(plotdir, "absAll")
-        system("mkdir -p %s" %absAllDir)
-        system("mv *_abs-vj.txt %s" %( absAllDir))
-        self.addChildTarget( VJusagePlot(vjdir, absAllDir, None, True, self.group2samples, True) )
+        absAllVjDir = os.path.join(plotdir, "absAll", 'vj')
+        system("mkdir -p %s" %absAllVjDir)
+        system("mv %s/*_abs-vj.txt %s" %(vjdir, absAllVjDir))
+        self.addChildTarget( VJusagePlot(absAllVjDir, absAllDir, None, True, self.group2samples, True) )
 
         #reads, relative count
         relAllDir = os.path.join(plotdir, "relAll")
-        system("mkdir -p %s" %relAllDir)
-        system("mv *-vj.txt %s" %( relAllDir))
-        self.addChildTarget( VJusagePlot(vjdir, relAllDir, None, True, self.group2samples, True) )
+        relAllVjDir = os.path.join(plotdir, "relAll", 'vj')
+        system("mkdir -p %s" %relAllVjDir)
+        system("mv %s/*-vj.txt %s" %( vjdir, relAllVjDir))
+        self.addChildTarget( VJusagePlot(relAllVjDir, relAllDir, None, True, self.group2samples, True) )
 
         #=========GROUP AVERAGE ONLY=======:
         #read group2samples:
@@ -292,7 +298,7 @@ class VJusage( Target ):
         absAllDir = os.path.join(avrPlotdir, "absAll") #outdir/averagePlots/absAll
         relAllDir = os.path.join(avrPlotdir, "relAll") #outdir/averagePlots/relAll
         
-        for g, samples in group2samples:
+        for g, samples in group2samples.iteritems():
             groupdir = os.path.join(self.outdir, g, 'fasta')
             system("mkdir -p %s" %groupdir)
             for sample in samples:
@@ -417,7 +423,7 @@ class Overlap( Target ):
         self.addChildTarget( Overlap2(self.indir, self.outdir, self.discrete, self.minReadCount, self.cutoffs, getOverlapStats, getPairwiseSharedSeqs, getUniqAndSharedSeqs, getOverlapPlot) )
 
 class Overlap2( Target ):
-    def __init__(self, indir, outdir, minReadCount, cutoffs, discrete, getOverlapStats, getPairwiseSharedSeqs, group2samples, getOverlapPlot):
+    def __init__(self, indir, outdir, discrete, minReadCount, cutoffs, getOverlapStats, getPairwiseSharedSeqs, group2samples, getOverlapPlot):
         Target.__init__(self)
         self.indir = indir
         self.outdir = outdir #outdir/overlap/discrete[cumulative]/overlapStats
@@ -431,6 +437,7 @@ class Overlap2( Target ):
         self.getOverlapPlot = getOverlapPlot
         
     def run(self):
+        #raise ValueError("MinPercentageCutoffs: %s\n" %self.cutoffs) #HACK
         cmd = "overlap.py -i %s -o %s -m 2 -c %d -p %s" %(self.indir, self.outdir, self.minReadCount, self.cutoffs) 
         if self.discrete:
             cmd += " -d"
@@ -465,7 +472,7 @@ class OverlapStatTables(Target):
     def run(self):
         #mode 1: one statistics of interest across different cutoffs
         stats_types = ["clone1", "clone2", "cloneAvr", "read1", "read2", "readAvr"]
-        for type in stats:
+        for type in stats_types:
             cmd = "getOverlapTab.py -i %s -o %s -s %s -m 1 -l " %(self.indir, self.outdir, type)
             system(cmd)
 
@@ -478,7 +485,7 @@ class OverlapStatTables(Target):
 def drawHist(file, outfile, rel):
     tempR = "%s-TEMP.R" %file
     f = open(tempR, 'w')
-    f.write("data = read.table(\"%s\", header=FALSE\n" % file)
+    f.write("data = read.table(\"%s\", header=FALSE)\n" % file)
     f.write("pdf('%s')\n" %outfile)
     if rel:
         f.write("hist(data[,1], freq=FALSE, lwd=5, lend='square', col='darkblue', xlab='Length (number of amino acids)', ylab='Frequency', main='CDR3 Length Distribution')\n" )
@@ -514,7 +521,7 @@ def checkOptions( parser, options, args ):
         raise InputOptionError("Input directory (%s) is not a directory\n" %options.seqdir)
     if not os.path.exists( options.outdir ):
         system( "mkdir %s\n" %(options.outdir) )
-    options.cutoffs = [ float(p) for p in options.minReadPercentage.strip(',').split(',') ]
+    #options.cutoffs = [ float(p) for p in options.minReadPercentage.strip(',').split(',') ]
 
 def addOptions( parser ):
     parser.add_option("-s", "--sequences", dest = 'seqdir', help="Required argument. Input directory that contains fasta files of productive CDR3 sequences (each file represents a sample)\n")
@@ -541,6 +548,7 @@ def main():
         raise RuntimeError("The jobtree contains %d failed jobs.\n" %i)
 
 if __name__ == "__main__":
-    from immunoseq.src.immunoseq import *
+    #from immunoseq import *
+    from immunoseq.src.immunoSeq import *
     main()
 

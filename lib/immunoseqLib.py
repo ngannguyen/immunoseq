@@ -1,6 +1,7 @@
 #nknguyen soe ucsc edu
 #Library of common functions used in the immunoseq pipeline
 
+import os, re, sys
 from numpy import *
 from matplotlib.ticker import LogLocator
 from optparse import OptionParser

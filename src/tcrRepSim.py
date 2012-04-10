@@ -879,6 +879,7 @@ def main():
         raise RuntimeError("The jobtree contains %d failed jobs.\n" %i)
 
 if __name__ == "__main__":
+    #from tcrRepSim import *
     from immunoseq.src.tcrRepSim import *
     main()
 

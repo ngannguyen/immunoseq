@@ -333,7 +333,7 @@ def tab2(f, sampleToExps, cutoff, sampleOrder):
                 f.write("%s & %s & %s & %s & %.2f & %.2f & %s & %.2f & %.2f \\\\\n" %(exp.sample1, exp.sample2, samsize, iseqlib.prettyInt(int(exp.clones1[index])), exp.oclones1[index], exp.reads1o2[index], iseqlib.prettyInt(int(exp.clones2[index])), exp.oclones2[index], exp.reads2o1[index]) )
             else:
                 #f.write("%s & %s & %s & %s & %s & %.2f & %.2f & %.2f & %.2f \\\\\n" %(exp.sample2, exp.sample1, samsize, iseqlib.prettyInt(int(exp.clones2[index])), iseqlib.prettyInt(int(exp.clones1[index])), exp.oclones2[index], exp.oclones1[index], exp.reads2o1[index], exp.reads1o2[index]) )
-                f.write("%s & %s & %s & %s & %.2f & %.2f & %s & %.2f & %.2f \n" %(exp.sample2, exp.sample1, samsize, iseqlib.prettyInt(int(exp.clones2[index])), exp.oclones2[index], exp.reads2o1[index], iseqlib.prettyInt(int(exp.clones1[index])), exp.oclones1[index], exp.reads1o2[index]) )
+                f.write("%s & %s & %s & %s & %.2f & %.2f & %s & %.2f & %.2f \\\\\n" %(exp.sample2, exp.sample1, samsize, iseqlib.prettyInt(int(exp.clones2[index])), exp.oclones2[index], exp.reads2o1[index], iseqlib.prettyInt(int(exp.clones1[index])), exp.oclones1[index], exp.reads1o2[index]) )
         f.write("\\hline\n")        
 
 def getAllStatsLatexTab(sampleToExps, cutoff, outfile, sampleOrder):

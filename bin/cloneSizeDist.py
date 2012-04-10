@@ -217,7 +217,8 @@ def sample2color( colors ):
            "warren": 6,
            "adaptF28cd8":1, "adaptF57cd8":1, "adaptM35cd8":1, "asBDR":1,
            "as8D":0, "as10R":0, "as11R":0, "as12R":0, "as13R":0, "as15D":0, "as1DR":0,
-           "diffGroupShared":0, "sameGroupShared":1, "shared":2, "uniq":3
+           "diffGroupShared":0, "sameGroupShared":1, "shared":2, "uniq":3,
+           'cd4':0, 'cd8':1, 'f57cd4':0, 'f57cd8':1, 'm35cd4':0, 'm35cd8':1,
            #"female":8,
            #"male2":6,
            #"male1_CD45RA+RO-_naive_day1":7, "male1_CD45RA+RO-_naive_day8":7, "male1_CD45RO+RA-_memory_day1":7, "male1_CD45RO+RA-_memory_day8":7, "male1_blooddraw1":7, "male1_blooddraw2":7
@@ -254,7 +255,8 @@ def sample2color( colors ):
            "warren": 5,
            "adaptF28cd8":1, "adaptF57cd8":2, "adaptM35cd8":3, "asBDR":0,
            "as8D":1, "as10R":2, "as11R":3, "as12R":4, "as13R":5, "as15D":6, "as1DR":0,
-           "diffGroupShared":0, "sameGroupShared":1, "shared":2, "uniq":3
+           "diffGroupShared":0, "sameGroupShared":1, "shared":2, "uniq":3,
+           'cd4':0, 'cd8':1, 'f57cd4':0, 'f57cd8':0, 'm35cd4':1, 'm35cd8':1,
           }
     
     lightcolors = getColors6light()
