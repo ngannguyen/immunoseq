@@ -5,12 +5,156 @@ from numpy import *
 from matplotlib.ticker import LogLocator
 from optparse import OptionParser
 
+#============ BINARY TREE ====================
+class BinaryTreeNode():
+    def __init__(self, obj):
+        self.obj = obj #current obj
+        self.left = None #left child (a BinaryTreeNode)
+        self.right = None #right child (a BinaryTreeNode)
+
+    def __cmp__(self, other):
+        return cmp(self.obj, other.obj)
+
+class BinaryTree():
+    def __init__(self):
+        self.root = None
+        self.left = None
+        self.right = None
+
+    def insert(self, newnode):
+        if not self.root:
+            self.root = newnode
+            return self.root
+
+        node = self.root
+        while node:
+            if newnode < node:
+                if node.left:
+                    node = node.left
+                else:#Insert newnode to be leftchild of Node
+                    node.left = newnode
+                    return node.left
+            elif newnode > node:
+                if node.right:
+                    node = node.right
+                else:#Insert newnode to be the right child of node
+                    node.right = newnode
+                    return node.right
+            else: #found a node in the tree that is equal to newnode, do nothing, just return that node
+                return node
+        
+    def search(self, node):
+        currnode = self.root
+        while currnode:
+            if node == currnode:
+                return currnode
+            elif node < currnode:
+                currnode = currnode.left
+            else:
+                currnode = currnode.right
+        return currnode
+
+#============== LIST ============
+class Seqs(list):
+    def add(self, seq):
+        leftIndex = 0
+        rightIndex = len(self) -1
+        
+        if len(self) == 0 or seq > self[rightIndex]:
+            self.append(seq)
+        elif seq < self[leftIndex]:
+            self.insert(0, seq)
+        elif seq == self[leftIndex] or seq == self[rightIndex]:
+            return
+        else:
+            while True:
+                middleIndex = int( (leftIndex + rightIndex)/2 )
+                compare = cmp( self[middleIndex], seq )
+                if compare == 0: #sequence is already in the list, do not add, just return
+                    break
+                elif leftIndex == middleIndex: #add seq to the right of leftIndex
+                    self.insert(rightIndex, seq)
+                    break
+                elif compare > 0: #seq lies somewhere btw [middleIndex, rightIndex]
+                    rightIndex = middleIndex
+                elif compare < 0: 
+                    leftIndex = middleIndex
+            
+    def search(self, seq):
+        leftIndex = 0
+        rightIndex = len(self) -1
+        
+        if len(self) == 0 or seq > self[rightIndex] or seq < self[leftIndex]: #not in list
+            return -1
+        elif seq == self[leftIndex]:
+            return leftIndex
+        elif seq == self[rightIndex]:
+            return rightIndex
+        else:
+            while True:
+                middleIndex = int( (leftIndex + rightIndex)/2 )
+                compare = cmp( self[middleIndex], seq )
+                if compare == 0: #sequence is already in the list, do not add, just return
+                    return middleIndex
+                elif leftIndex == middleIndex: #Not found
+                    return -1
+                elif compare > 0: #seq lies somewhere btw [middleIndex, rightIndex]
+                    rightIndex = middleIndex
+                elif compare < 0: 
+                    leftIndex = middleIndex
+
+
 #============== UTILITIES =========
 def sortDictByValue( dictionary ):
     items = [ (v, k) for k,v in dictionary.items() ]
     items.sort()
     items.reverse()
     return [ (k, v) for v, k in items ]
+
+def nt2aa(nt):
+    #Translate nucleotide sequence to amino acid sequence
+    codon2aa = {
+    'TTT': 'F', 'TCT': 'S', 'TAT': 'Y', 'TGT': 'C',
+    'TTC': 'F', 'TCC': 'S', 'TAC': 'Y', 'TGC': 'C',
+    'TTA': 'L', 'TCA': 'S', 'TAA': '*', 'TGA': '*',
+    'TTG': 'L', 'TCG': 'S', 'TAG': '*', 'TGG': 'W',
+    'CTT': 'L', 'CCT': 'P', 'CAT': 'H', 'CGT': 'R',
+    'CTC': 'L', 'CCC': 'P', 'CAC': 'H', 'CGC': 'R',
+    'CTA': 'L', 'CCA': 'P', 'CAA': 'Q', 'CGA': 'R',
+    'CTG': 'L', 'CCG': 'P', 'CAG': 'Q', 'CGG': 'R',
+    'ATT': 'I', 'ACT': 'T', 'AAT': 'N', 'AGT': 'S', 
+    'ATC': 'I', 'ACC': 'T', 'AAC': 'N', 'AGC': 'S',
+    'ATA': 'I', 'ACA': 'T', 'AAA': 'K', 'AGA': 'R', 
+    'ATG': 'M', 'ACG': 'T', 'AAG': 'K', 'AGG': 'R', 
+    'GTT': 'V', 'GCT': 'A', 'GAT': 'D', 'GGT': 'G',
+    'GTC': 'V', 'GCC': 'A', 'GAC': 'D', 'GGC': 'G',
+    'GTA': 'V', 'GCA': 'A', 'GAA': 'E', 'GGA': 'G', 
+    'GTG': 'V', 'GCG': 'A', 'GAG': 'E', 'GGG': 'G' 
+    }
+    aaseq = ''
+    for i in xrange(0, len(nt)/3):
+        codon = nt[i*3 : i*3+3].upper()
+        aaseq = aaseq + codon2aa[codon]
+    return aaseq
+
+def rc(nt):
+    #Return a reverse complement of the input sequence.
+    complement = {'A':'T', 'T':'A', 'G':'C', 'C':'G', 'a':'t', 't':'a', 'c':'g', 'g':'c'}
+    rcnt = ''
+    for i in xrange( len(nt) -1, -1, -1):
+        if nt[i] in complement:
+            rcnt += complement[nt[i]] 
+        else:
+            rcnt += nt[i]
+    return rcnt
+
+def getfiles(indir, ext):
+    files = []
+    for file in os.listdir(indir):
+        items = file.split('.')
+        if items[-1] == ext:
+            files.append(file)
+    return files
 
 #============== LATEX =========
 def prettyInt( number ):
@@ -150,6 +294,14 @@ def getColors3():
                "#CD2626", 
                "#FF7D40", 
                "#0000FF" ]
+    return colors
+
+def getColors6():
+    colors = ["#E31A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#1B9E77", "#FFFF33", "#A65628", "#CE1256"] #red, blue, green, purple, orange, green-ish, yellow, brown, pink 
+    return colors
+
+def getColors6light():
+    colors = ["#FE8E8F", "#A6D7FE", "#B8FEB5", "#F6BDFE", "#FEBF80", "#95FEDF", "#FFFFB3", "#D8885A", "#D7B5D8"] #red, blue, green, purple, orange, green-ish
     return colors
 
 def setAxes( fig ):                                                                     

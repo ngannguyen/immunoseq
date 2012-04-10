@@ -1,7 +1,7 @@
 binPath = ../bin
 libPath = ../lib
 
-progs = $(notdir $(wildcard cloneSizeDist.py adaptiveTcrParse.py tcrRepSim.py tcrRepSimTest.py getOverlapTab.py vjusage.py usagePlot.py))
+progs = $(notdir $(wildcard immunoseq.py sampling.py faCollapse.py cloneSizeTab.py overlap.py getOverlapSequences.py cloneSizeDist.py adaptiveTcrParse.py tcrRepSim.py tcrRepSimTest.py getOverlapTab.py vjusage.py usagePlot.py))
 
 .PHONY: %.all
 
