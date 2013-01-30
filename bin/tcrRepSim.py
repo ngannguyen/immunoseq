@@ -18,7 +18,7 @@ There are 4 main steps involved:
 
 2/ Generate the repertoire (say P) of CDR3 of an individual from set R in (1):
    Let M be the number of cells (number of total sequences) an individual has. It is estimated that there are about 6x10^7 CD8+ T cells per individual.
-   Populate repertoire P with the n sequences in R until P has M sequences. This step can assume a uniform distribution of the uniq sequences or model clonal expansion.
+   Populate repertoire P with the n sequences in R until P has M sequences. This step can assume a lognormal (previously used uniform) distribution of the uniq sequences or model clonal expansion.
    The program model clonal expansion by in input pseudo repertoire with format <topFreq>,<secondTopFreq>,...,<ith-topFreq>. A random sequence will be drawn from n sequences in (a), and will populate P with topFreq*M counts. Then a second random seq will be drawn, etc until there are M sequences or the frequency list is done. If freq list is done and there are < M sequences in P, just randomly fill in P with the rest of the m sequences
    Generate: M CDR3 nucleotide sequences
 
@@ -48,6 +48,7 @@ from sonLib.bioio import system
 from sonLib.bioio import getTempDirectory
 from sonLib.bioio import setLogLevel
 import numpy as np
+from scipy.stats import poisson, lognorm
 
 #from immunoseq.lib import *
 
@@ -553,6 +554,33 @@ def sampling( seqs, size ):
             samseqs.add(s)
     return samseqs
 
+#get the repertoire using topFreqs if available, otherwise assume lognormal distribution
+#IMCOMPLETE
+def getRepLognorm( seqs, size, mean, std ):
+    #mean = #mean of log(clonesize)
+    #std = #standard deviation of log(clonesize)
+    
+    #Generate repertoire:
+    topindices = []
+    sizeToFill = size
+
+    if topFreqs:
+        for i, f in enumerate(topFreqs):
+            index = random.randint(0, len(seqs) -1)
+            while (index in topindices):
+                index = random.randint(0, len(seqs) -1)
+            topindices.append(index)
+            count = int(f*size)
+            seqs[index].setCount( count )
+        sizeToFill = size - int( sum(topFreqs)*size )
+    
+    for i in xrange(sizeToFill):
+        index = random.randint(0, len(seqs) -1)
+        while (index in topindices):
+            index = random.randint(0, len(seqs) -1)
+     
+
+#get the repertoire using topFreqs if available, otherwise assume uniform distribution
 def getRep( seqs, size, topFreqs ):
     #Generate repertoire:
     topindices = []
@@ -856,10 +884,12 @@ def addOptions( parser ):
     parser.add_option("-m", "--totalClones", dest="totalClones", type="long", default=3*(10**6), help="Estimated number of unique CDR3 nucleotide sequences in one individual. Default=3x10^6")
     parser.add_option("-M", "--totalSeqs", dest="totalSeqs", type="long", default=6*(10**7), help="Estimated number of CDR3 nucleotide sequences in one individual. Default=6x10^7 (number of CD8+ T cells per person)")
     parser.add_option("-S", "--samplingSize", dest="samSize", default="50000,100000,150000,200000", help="Comma separated string of sampling sizes. Default=%default")
-    parser.add_option("-a", "--aaUsage", dest="aaUsage", help="Amino acid usage of the CDR3 sequences. Format:<aa-cdr3-length>\t<position>\t<letter>\t<count>. If not specified, use uniform distribution")
+    #parser.add_option("-a", "--aaUsage", dest="aaUsage", help="Amino acid usage of the CDR3 sequences. Format:<aa-cdr3-length>\t<position>\t<letter>\t<count>. If not specified, use uniform distribution")
+    parser.add_option("-a", "--aaUsage", dest="aaUsage", help="Amino acid usage of the CDR3 sequences. Format:<aa-cdr3-length>\t<position>\t<letter>\t<count>. If not specified, use lognormal distribution")
     parser.add_option("-l", "--cdr3LenDist", dest="cdr3LenDist", help="CDR3 length distribution. Format: <aa-cdr3-length>\t<count>")
     parser.add_option("-c", "--codonUsage", dest="codonUsage", default="~/codonUsage.txt", help="Codon usage table")
-    parser.add_option("-f", "--topFreqs", dest="topFreqs", help="Frequencies of x top clones. Sum of these freqs must <= (M - (m-x))/M. If not specified, use uniform distribution")
+    #parser.add_option("-f", "--topFreqs", dest="topFreqs", help="Frequencies of x top clones. Sum of these freqs must <= (M - (m-x))/M. If not specified, use uniform distribution")
+    parser.add_option("-f", "--topFreqs", dest="topFreqs", help="Frequencies of x top clones. Sum of these freqs must <= (M - (m-x))/M. If not specified, use lognormal distribution")
     parser.add_option("-s", "--numSamples", dest="numSamples", type="int", default=2, help="Number of samples (individuals/repertoires) to compare. Default=2.")
     parser.add_option("-p", "--cutoffs", dest="cutoffs", default="0,0.001,0.01,0.05,0.1,0.5,1,5,10", help="Comma separated clonesize percentage cutoffs. Default='0,0.001,0.01,0.05,0.1,0.5,1,5'")
     parser.add_option("--maxSimPerRun", dest="maxSimPerRun", type='int', default=100, help="Maximum number of simulations per batch. Default=100")

@@ -259,6 +259,19 @@ def getUsage(samples, outdir, type):
 def getVJusage(samples, outdir, abs, uniq):
     #If abs is True: print absolute count, otherwise print frequencies.
     #If uniq is True: using the Uniq sequence Count as the unit, otherwise, use read count
+    if abs:
+        if uniq:
+            outdir = os.path.join(outdir, "absuniq")
+        else:
+            outdir = os.path.join(outdir, "abs")
+    else:
+        if uniq:
+            outdir = os.path.join(outdir, "reluniq")
+        else:
+            outdir = os.path.join(outdir, "rel")
+    system("mkdir -p %s" %outdir)
+    
+
     for s in samples:
         v2c = s.usage['v']
         j2c = s.usage['j']
@@ -275,6 +288,8 @@ def getVJusage(samples, outdir, abs, uniq):
         f.write( "\t%s\n" %( '\t'.join( [j for j in sorted(j2c.keys())] ) ) )
         
         for v in sorted( v2c.keys() ):
+            if v == '' or re.search('undefined', v):
+                continue
             f.write( "%s" %v )
             for j in sorted( j2c.keys() ):
                 vj = '|'.join([v, j])
@@ -296,6 +311,33 @@ def getVJusage(samples, outdir, abs, uniq):
                         f.write("\t%f" %count)
             f.write("\n")
         f.close()
+
+def topVJusage(samples, outdir, num):
+    sample2topvjs = {}
+    for sample in samples:
+        if sample.name == 'average' or sample.name == 'std':
+            continue
+        vj2c = sample.usage['vj']
+        sortedvjs = sorted( [(vj, counts[0]) for vj, counts in vj2c.iteritems()], key=lambda item:item[1], reverse=True )
+        if num > len(sortedvjs):
+            topvjs = sortedvjs
+        else:
+            topvjs = sortedvjs[:num]
+        sample2topvjs[sample.name] = topvjs
+    
+    outfile = os.path.join(outdir, 'topvj.txt')
+    f = open(outfile, 'w')
+    names = sorted( sample2topvjs.keys() )
+    f.write("%s\n" %('\t'.join(names)))
+    for i in xrange(0, num):
+        row = []
+        for n in names:
+            #print i, n
+            #print sample2topvjs[n][i]
+            vj = sample2topvjs[n][i][0]
+            row.append( vj )
+        f.write("%s\n" %('\t'.join(row) ))
+    f.close()
 
 def vjUsage(samples, outdir):
     #types = ['v', 'j', 'vj']
@@ -323,6 +365,7 @@ def initOptions(parser):
     parser.add_option('-i', '--indir', dest='indir', help='Required argument. Input directory')
     parser.add_option('-o', '--outdir', dest='outdir', help='Required argument. Output directory')
     parser.add_option('-s', '--sampling', dest='sampling', type='int', help='Sampling size, this number should be less than or equal to the size of the smallest sample. If this option is specified, randomly choose this number of sequences from each sample, and compare the V, J, VJ usage from these subsets. This approach, in away, normalize the data.')
+    parser.add_option('-t', '--topseqs', dest='numtop', type='int', default=20, help='Number of top sequences to print out. Default = %default')
     #parser.add_option('-f', '--filter', dest='filter', action='store_true', default=False, help='If specified, filter out sequences that mapped unambiguously to multiple V or J genes. Default=%default')
 
 def main():
@@ -364,6 +407,10 @@ def main():
     sys.stderr.write("Done vj usage with absolute uniqSeq count\n")
     getVJusage(samples, vjoutdir, not abs, uniq)
     sys.stderr.write("Done vj usage with relative read count\n")
+
+    #TopVJ usage across samples
+    #num = 20
+    topVJusage(samples, vjoutdir, options.numtop)
 
 if __name__ == '__main__':
     main()

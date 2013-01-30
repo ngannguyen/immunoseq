@@ -30,10 +30,16 @@ class Sample:
         self.totalCount = 0
         self.totalClones = 0
         self.size2clones = {}
-        self.countArr = [1, 5, 10, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 300, 350, 400, 450, 500]
-        #self.percentArr = [0, 0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+        #self.countArr = [1, 5, 10, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 300, 350, 400, 450, 500]
+        #self.countArr = xrange(0, 1001, 10)
+        #self.countArr = xrange(0, 101, 1)
+        self.countArr = [0, 10, 100, 1000, 10000]
+        #self.countArr = [0, 100, 1000, 10000, 100000]
+        self.percentArr = [0, 0.001, 0.01, 0.1, 1]
+        #self.percentArr = [0, 0.1, 1]
         #HACK
-        self.percentArr = [0, 0.001, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+        #self.percentArr = [0, 0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+        #self.percentArr = [0, 0.001, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
         
         self.clonesPerCount = [ 0 for c in self.countArr ]
         self.readsPerCount = [0 for c in self.countArr] #Percentage of reads per category
@@ -98,7 +104,7 @@ def readfiles(indir, cumulative):
     for file in os.listdir(indir):
         if not os.path.exists(os.path.join(indir, file)) or (not re.search(".fa", file)):
             continue
-        sampleName = os.path.basename(file).rstrip(".fa")
+        sampleName = os.path.basename(file).rstrip("fa").rstrip(".")
         s = Sample(sampleName)
         #sys.stderr.write("File %s\n" %file)
         f = open(os.path.join(indir, file), 'r')
@@ -153,10 +159,10 @@ def setUsageDistAxes( fig, numSamples, samplesPerPlot ):
         numaxes += 1
     
     axesList = []
-    axleft = 0.1
-    axright = 0.97
+    axleft = 0.13
+    axright = 0.95
     axwidth = axright - axleft
-    axbottom = 0.13
+    axbottom = 0.15
     axtop = 0.93
     axheight = axtop - axbottom
     margin = 0.1
@@ -187,11 +193,15 @@ def getColors3():
     return colors
 
 def getColors6():
-    colors = ["#E31A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#1B9E77", "#FFFF33", "#A65628", "#CE1256"] #red, blue, green, purple, orange, green-ish, yellow, brown, pink 
+    #colors = ["#E31A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#1B9E77", "#FFFF33", "#A65628", "#CE1256"] #red, blue, green, purple, orange, green-ish, yellow, brown, pink 
+    #GRAY SCALE
+    colors = ["#353535", "#959595", "#4DAF4A", "#984EA3", "#FF7F00", "#1B9E77", "#FFFF33", "#A65628", "#CE1256"] #red, blue, green, purple, orange, green-ish, yellow, brown, pink 
     return colors
 
 def getColors6light():
-    colors = ["#FE8E8F", "#A6D7FE", "#B8FEB5", "#F6BDFE", "#FEBF80", "#95FEDF", "#FFFFB3", "#D8885A", "#D7B5D8"] #red, blue, green, purple, orange, green-ish
+    #colors = ["#FE8E8F", "#A6D7FE", "#B8FEB5", "#F6BDFE", "#FEBF80", "#95FEDF", "#FFFFB3", "#D8885A", "#D7B5D8"] #red, blue, green, purple, orange, green-ish
+    #GRAY SCALE
+    colors = ["#656565", "#BDBDBD", "#B8FEB5", "#F6BDFE", "#FEBF80", "#95FEDF", "#FFFFB3", "#D8885A", "#D7B5D8"] #red, blue, green, purple, orange, green-ish
     return colors
 
 def sample2color( colors ):
@@ -216,9 +226,29 @@ def sample2color( colors ):
            "adaptiveTCR-PtX": 5,
            "warren": 6,
            "adaptF28cd8":1, "adaptF57cd8":1, "adaptM35cd8":1, "asBDR":1,
-           "as8D":0, "as10R":0, "as11R":0, "as12R":0, "as13R":0, "as15D":0, "as1DR":0,
+           "adaptF28cd4":2, "adaptF57cd4":2, "adaptM35cd4":2,
+           #"as8D":0, "as10R":0, "as11R":0, "as12R":0, "as13R":0, "as15D":0, "as1DR":0,
+           "as10R":0, "as11R":0, "as12R":0, "as13R":0, "as1R":0,
+           "adaptCD8R":1, "adaptMA8R":1,
+           #"as8D":1, "as15D":1, "as1D":1, "as16D":1, "as11D":1, "as1Ddraw2":1,
+           "as8D":0, "as15D":2, "as1D":0, "as16D":0, "as11D":0, "as1Ddraw2":0,
+           "as1Ddraw2notcd8": 2,
+           #"asBD":4, "asBDdraw2":4, "as20D":4,
+           "asBD":1, "asBDdraw2":1, "as20D":1,
+           "asBR":1,
            "diffGroupShared":0, "sameGroupShared":1, "shared":2, "uniq":3,
            'cd4':0, 'cd8':1, 'f57cd4':0, 'f57cd8':1, 'm35cd4':0, 'm35cd8':1,
+           'adapt1D':1, 'adaptBD':1, 'adapt11D':1,
+           'adapt1R':2, 'adaptBR':2, 'adapt11R':2,
+           'rna':0, 'dna':1,
+           'adaptControls':2, 'asControls':4, 'asPatients':1,
+           "adaptF28":2, "adaptF57":2, "adaptM35":2,
+           'adaptAS':2, 'adaptCD':2, 'adaptMA':2,'adaptBSD1n':2,
+           "f57CD8naive":3, "m35CD8naive":3,
+           "adaptAS8Na":0, "adaptAS8Na2":0, "adaptAS8Nb":0, "adaptAS8Nb2":0, "adaptAS8Nc":0,
+           "adaptCD8Na":1, "adaptCD8Nb":1, "adaptCD8n2":1,
+           "adaptMA8Na":2, "adaptMA8Na2":2, "adaptMA8Nb":2, "adaptMA8Nb2":2, "adaptMA8Nc2":2,
+           "SEQ-A1":5, "SEQ-A1b":5, "SEQ-A2":5, "SEQ-B":5,
            #"female":8,
            #"male2":6,
            #"male1_CD45RA+RO-_naive_day1":7, "male1_CD45RA+RO-_naive_day8":7, "male1_CD45RO+RA-_memory_day1":7, "male1_CD45RO+RA-_memory_day8":7, "male1_blooddraw1":7, "male1_blooddraw2":7
@@ -232,7 +262,7 @@ def sample2color( colors ):
     #       "PtX-1-Month-Post":6, "PtX-2-Months-Post":6, "PtX-Before-transplant":6 #
     #      }
     
-    markers = ['o', '*', 's', 'd', '^', 'p', 'v']
+    markers = ['o', 'd', '^', 'p', 'v', '*', 's']
     s2mi = {"SBC1":1 , "SBC2": 2, "SBC3": 3, "SBC4": 4, "SBC5": 5, "SBC6":6, #RNA
            "SBC7": 1, "SBC8": 2, #DNA
            "Patient-01-R":1, "Patient-B-R":2, "Patient-10":3, "Patient-11":4, "Patient-12":5, "Patient-13":6, #RNA
@@ -254,9 +284,27 @@ def sample2color( colors ):
            "adaptiveTCR-PtX": 4,
            "warren": 5,
            "adaptF28cd8":1, "adaptF57cd8":2, "adaptM35cd8":3, "asBDR":0,
-           "as8D":1, "as10R":2, "as11R":3, "as12R":4, "as13R":5, "as15D":6, "as1DR":0,
+           "adaptF28cd4":1, "adaptF57cd4":2, "adaptM35cd4":3,
+           #"as8D":1, "as10R":2, "as11R":3, "as12R":4, "as13R":5, "as15D":6, "as1DR":0,
+           "as10R":1, "as11R":2, "as12R":3, "as13R":4, "as1R":5,
+           "adaptCD8R":1, "adaptMA8R":2,
+           "as8D":1, "as15D":3, "as1D":5, "as16D":4, "as11D":2, "as1Ddraw2":6,
+           "as1Ddraw2notcd8": 6,
+           "asBD":5, "asBDdraw2":6, "as20D":3,
+           "asBR":5,
            "diffGroupShared":0, "sameGroupShared":1, "shared":2, "uniq":3,
            'cd4':0, 'cd8':1, 'f57cd4':0, 'f57cd8':0, 'm35cd4':1, 'm35cd8':1,
+           'adapt1D':0, 'adaptBD':1, 'adapt11D':2,
+           'adapt1R':0, 'adaptBR':1, 'adapt11R':2,
+           'rna':0, 'dna':4,
+           'adaptControls':0, 'asControls':1, 'asPatients':2,
+           "adaptF28":0, "adaptF57":1, "adaptM35":2,
+           'adaptAS':3, 'adaptCD':4, 'adaptMA':5,'adaptBSD1n':6,
+           "f57CD8naive":0, "m35CD8naive":1,
+           "adaptAS8Na":0, "adaptAS8Na2":1, "adaptAS8Nb":2, "adaptAS8Nb2":3, "adaptAS8Nc":4,
+           "adaptCD8Na":0, "adaptCD8Nb":1, "adaptCD8n2":2,
+           "adaptMA8Na":0, "adaptMA8Na2":1, "adaptMA8Nb":2, "adaptMA8Nb2":3, "adaptMA8Nc2":4,
+           "SEQ-A1":0, "SEQ-A1b":1, "SEQ-A2":2, "SEQ-B":3,
           }
     
     lightcolors = getColors6light()
@@ -280,6 +328,7 @@ def drawCloneSizeData( axesList, samples, samplesPerPlot, options, isAbs, yaxisP
     #markers=['o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', '^', '^']
 
     #c = -1
+    #textsize = 'x-large'
     textsize = 'medium'
     fontP = FontProperties()
     fontP.set_size(textsize)
@@ -302,12 +351,15 @@ def drawCloneSizeData( axesList, samples, samplesPerPlot, options, isAbs, yaxisP
         axes = axesList[i]
         #HACK
         #if not yaxisPcReads and not yaxisPcClones:
-        #    axes.set_yscale('log')
+        if not yaxisPcReads:
+            axes.set_yscale('log')
+        #axes.set_yscale('log')
         startIndex = i*samplesPerPlot
         endIndex = min( [startIndex + samplesPerPlot, len(samples)] )
         for j in range( startIndex, endIndex ):
             sample = samples[j]
-            sampleNames.append( "%s-%d" % (sample.name, sample.totalCount))
+            #sampleNames.append( "%s" % (sample.name))
+            sampleNames.append( "%s" % (iseqlib.properName(sample.name)))
             ydata = sample.clonesPerCount
             if not yaxisPcReads and not isAbs:
                 ydata = sample.clonesPerPercent
@@ -325,24 +377,40 @@ def drawCloneSizeData( axesList, samples, samplesPerPlot, options, isAbs, yaxisP
             #l = axes.plot( xdata, ydata, color=colors[c], marker=markers[(i*len(axesList) + j)%2], markersize=6.0, linestyle='none' )
             #axes.plot( xdata, ydata, color=colors[c], linestyle='-', linewidth=0.01 )
             currxdata = [x + offset*(j - startIndex) for x in xdata]
-            markersize = 8.0
+            if isAbs:
+                markersize = 8.0
+                #markersize = 10.0
+            else:
+                markersize = 8.0
+                #markersize = 10.0
             if s2m[sample.name] == '*':
-                markersize = 10.0
+                markersize += 2.0
             elif s2m[sample.name] == 's':
-                markersize = 6.0
+                markersize -= 2.0
+
+            print sample.name
+            print ydata
+
             #l = axes.plot( xdata, ydata, color=s2c[sample.name], marker=s2m[sample.name], markeredgecolor=s2c[sample.name], markersize=6.0, linestyle='none' )
             l = axes.plot( currxdata, ydata, color=s2c[sample.name], marker=s2m[sample.name], markeredgecolor=s2c[sample.name], markersize=markersize, linestyle='none' )
+            #l = axes.plot( currxdata, ydata, color="#377EB8", marker='o', markeredgecolor=s2c[sample.name], markersize=markersize, linestyle='none' )
             #axes.plot( xdata, ydata, color=s2cLight[sample.name], linestyle='-', linewidth=0.3 )
-            axes.plot( currxdata, ydata, color=s2cLight[sample.name], linestyle='-', linewidth=0.2 )
+            axes.plot( currxdata, ydata, color=s2cLight[sample.name], linestyle='-', linewidth=0.5 )
+            #axes.plot( currxdata, ydata, color="#377EB8", linestyle='-', linewidth=0.7 )
             lines.append( l )
         
-        if yaxisPcReads or yaxisPcClones:
-            axes.plot( [-0.5, len(xtickLabels)], [90, 90], linestyle='-', linewidth=0.2, color="#CCCCCC" )
+        #if yaxisPcReads or yaxisPcClones:
+        #    axes.plot( [-0.5, len(xtickLabels)], [90, 90], linestyle='-', linewidth=0.2, color="#CCCCCC" )
         linesDict[i] = lines
         labelsDict[i] = sampleNames
     
         if cumulative:
-            axes.set_title( 'Cumulative Clone Size Distribution', size="xx-large" )
+            #axes.set_title( 'Cumulative Distribution of Clones', size="xx-large", weight='bold' )
+            #axes.set_title( 'Cumulative Distribution of Clones', size="large", weight='bold' )
+            axes.set_title( 'A. Cumulative Distribution of Clones', size="large", weight='bold' )
+            if yaxisPcReads:
+                #axes.set_title( 'Cumulative Distribution of Sequences', size="xx-large", weight='bold')
+                axes.set_title( 'B. Cumulative Distribution of Sequences', size="large", weight='bold')
         else:
             axes.set_title( 'Clone Size Distribution', size="xx-large" )
 
@@ -350,28 +418,53 @@ def drawCloneSizeData( axesList, samples, samplesPerPlot, options, isAbs, yaxisP
         axes = axesList[ i ]
         #libplot.editSpine( axes )
         iseqlib.editSpine( axes )
-        axes.set_xlabel('Clone size as number of reads', size = textsize)
+        axes.set_xlabel('Clone size (number of sequences)', size = textsize)
         if not isAbs:
-            axes.set_xlabel('Clone size as percentage of total reads', size = textsize)
-        axes.set_ylabel('Number of clones', size=textsize)
+            axes.set_xlabel('Clone size (% of total sequences)', size = textsize, weight='bold')
+        axes.set_ylabel('Frequency (number of clones)', size=textsize)
         if yaxisPcReads:
-            axes.set_ylabel('Percentage of total reads', size=textsize)
+            axes.set_ylabel('Frequency (% of total sequences)', size=textsize, weight='bold')
         if yaxisPcClones:
-            axes.set_ylabel('Percentage of total clones', size = textsize)
+            axes.set_ylabel('Frequency (% of total clones)', size = textsize, weight='bold')
         #Legend
         #legend = pyplot.legend( linesDict[i], labelsDict[i], numpoints=1, prop=fontP, loc="best" )
         #legend = axes.legend( linesDict[i], labelsDict[i], numpoints = 1, "upper right", ncol=3)
-        legend = axes.legend( linesDict[i], labelsDict[i], numpoints = 1, loc="best", ncol=1, prop=fontP)
-        #for t in legend.get_texts():
-        #    t.set_fontsize(textsize)
-        legend._drawFrame = False
+        if yaxisPcClones and not yaxisPcReads:
+            legend = axes.legend( linesDict[i], labelsDict[i], numpoints = 1, loc="best", ncol=1, prop=fontP)
+            #for t in legend.get_texts():
+            #    t.set_fontsize(textsize)
+            legend._drawFrame = False
 
-        axes.xaxis.set_ticklabels( xtickLabels )
+        #HACK
+        #if isAbs:
+        if False:
+            xtickdata = xrange(10, 101, 10)
+            #grid:
+            for x in xtickdata:
+                axes.plot([x,x], [0.0001, maxy], color='#3F3F3F', linestyle='-', linewidth=0.1)
+            axes.xaxis.set_ticks(xtickdata)
+            minx = 0
+            maxx = 101
+            axes.set_xlim(minx, maxx)
+            axes.xaxis.set_ticklabels([str(x) for x in xtickdata] , size='medium')
+        else:
+            axes.xaxis.set_ticklabels( xtickLabels, size='medium' )
+            axes.xaxis.set_ticks([x + 0.5*offset*(samplesPerPlot-1) - 0.5 for x in xdata] )
+            minx = -0.5
+            maxx = len(xtickLabels) - 0.5
+            
+            xticks = [x + 0.5*offset*(samplesPerPlot-1) - 0.5 for x in xdata]
+            for xi, x in enumerate(xticks):
+                if xi == 0:
+                    continue
+                axes.plot([x,x], [0.0001, maxy], color='#3F3F3F', linestyle='-', linewidth=0.1)
+            axes.set_xlim(minx, maxx)
+
+        #END HACK
+
         #axes.xaxis.set_ticks( xdata )
         #axes.xaxis.set_ticks([x + 0.5*offset*(samplesPerPlot-1) for x in xdata] )
         #axes.set_xlim(-0.5, len(xtickLabels))
-        axes.xaxis.set_ticks([x + 0.5*offset*(samplesPerPlot-1) - 0.5 for x in xdata] )
-        axes.set_xlim(-0.5, len(xtickLabels) - 0.5)
 
         #numTicks = 20
         #yticks = [ float(t)/numTicks for t in range(numTicks +1) ]
@@ -380,19 +473,60 @@ def drawCloneSizeData( axesList, samples, samplesPerPlot, options, isAbs, yaxisP
         #    ytickLabels.append( "%d" %(y*100) )
         
         if not yaxisPcReads and not yaxisPcClones:
-            yticks = [1, 10, 100, 1000,5000, 10000, 50000, 100000, 150000]
-            ytickLabels = ["1", "10", "100", "1,000", "5,000", "10,000", "50,000", "100,000", "150,000"]
+            #yticks = [100, 1000, 5000, 10000, 15000, 20000]
+            #ytickLabels = ["100", "1k", "5k", "10k", "15k", "20k"]
+            yticks = [1, 10, 100, 1000, 10000, 50000, 100000, 150000]
+            #ytickLabels = ["1", "10", "100", "1k", "10k", "50k", "100k", "150k"]
+            ytickLabels = ["1", "10", "100", "1k", "10k", "50k", "100k", "150k"]
             axes.yaxis.set_ticklabels( ytickLabels )
             axes.yaxis.set_ticks( yticks )
-        #axes.set_ylim(-0.1, maxy + 0.1)
-        axes.set_ylim(-0.1, 5) #HACK
+            for y in yticks:
+                if y in [1, 10, 100, 1000, 10000, 100000]:
+                #if y in [100, 1000, 5000, 10000, 15000, 20000]:
+                    axes.plot([minx, maxx], [y, y], color='#3F3F3F', linestyle='-', linewidth=0.1)
+                else:
+                    axes.plot([minx, maxx], [y, y], color='#3F3F3F', linestyle='-.', linewidth=0.1)
+            axes.set_ylim(0.8, maxy + 15000)
+        elif yaxisPcClones:
+        #elif yaxisPcClones or yaxisPcReads:
+            #yticks = [0.001, 0.01, 0.1, 1, 10, 25, 50, 75, 100]
+            yticks = [0.001, 0.01, 0.1, 1, 10, 100]
+            #yticks = xrange(0, 101, 20)
+            ytickLabels = [str(y) for y in yticks]
+            axes.yaxis.set_ticks(yticks)
+            axes.yaxis.set_ticklabels( ytickLabels )
+            for y in yticks:
+                if y in [0.001, 0.01, 0.1, 1, 10, 100]:
+                #if y in xrange(0, 101, 20):
+                    axes.plot([minx, maxx], [y, y], color='#3F3F3F', linestyle='-', linewidth=0.1)
+                else:
+                    axes.plot([minx, maxx], [y, y], color='#3F3F3F', linestyle='-.', linewidth=0.1)
+            axes.set_ylim(0.0005, maxy + 25)
+            #axes.set_ylim(0.001, maxy + 25)
+        else:
+            yticks = xrange(0, 101, 20)
+            ytickLabels = [str(y) for y in yticks]
+            axes.yaxis.set_ticks(yticks)
+            axes.yaxis.set_ticklabels( ytickLabels )
+            for y in yticks:
+                axes.plot([minx, maxx], [y, y], color='#3F3F3F', linestyle='-', linewidth=0.1)
+            axes.set_ylim(-1, maxy + 1)
+        #axes.set_ylim(-1, maxy + 1)
+        #if isAbs: #HACK
+        #    axes.set_ylim(-0.1, 15)
+
+        #axes.set_ylim(-0.1, 50) #HACK
         for label in axes.get_xticklabels():
-            label.set_fontsize( textsize )
-            label.set_rotation( 45 )
+            #label.set_fontsize( 'large' )
+            label.set_fontsize( 'small' )
+            #label.set_rotation( 45 )
+
         for label in axes.get_yticklabels():
-            label.set_fontsize( textsize )
-        axes.yaxis.grid(b=True, color="#CCCCCC", linestyle='-', linewidth=0.005)
-        axes.xaxis.grid(b=True, color="#CCCCCC", linestyle='-', linewidth=0.005)
+            #label.set_fontsize( 'large' )
+            label.set_fontsize( 'small' )
+        
+        #axes.yaxis.grid(b=True, color="#BCBCBC", linestyle='-', linewidth=0.005)
+        #axes.xaxis.grid(b=True, color="#CCCCCC", linestyle='-', linewidth=0.005)
     return 
 
 def drawCloneSizeDist( samples, options, isAbs, yaxisPcReads, yaxisPcClones, cumulative ):
@@ -415,10 +549,13 @@ def drawCloneSizeDist( samples, options, isAbs, yaxisPcReads, yaxisPcClones, cum
 #============ Top Clones Versus Read Proportion ===============
 def getClonesVsReads( sample ):
     #HACK:
-    xdata = range(1, 525) 
+    xdata = range(1, 101, 1) 
     xlabels = [str(x)  for x in xdata ] 
-    #xlabels = ['1', '5', '10', '25', '50', '75', '100', '125', '150', '175', '200', '225', '250', '275', '300', '350', '400', '500' ]
-    #xdata = [1, 5, 10, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 350, 400, 500]
+    
+    #xdata = [1, 5, 10, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 350, 400, 500, 1000]
+    #xlabels = ['1', '5', '10', '25', '50', '75', '100', '125', '150', '175', '200', '225', '250', '275', '300', '350', '400', '500', '1000' ]
+    #xdata = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+    #xlabels = [str(x) for x in xdata]
     readPercentage = {}
     for x in xdata:
         readPercentage[x] = 0
@@ -428,8 +565,8 @@ def getClonesVsReads( sample ):
     cumulClones = 0
     for i,size in enumerate( sorted( sample.size2clones.keys(), reverse=True ) ):
         #HACK:
-        if i == 0:
-            continue
+        #if i == 0:
+        #    continue
         #END HACK
         numClones = sample.size2clones[size]
         cumulClones += numClones
@@ -473,6 +610,7 @@ def drawCloneVsReadData( axesList, samples, samplesPerPlot, options, isAbs ):
         return
     colors = getColors6()
     s2c, s2m, s2cLight = sample2color( colors )
+    #textsize = 'x-large'
     textsize = 'medium'
     fontP = FontProperties()
     fontP.set_size(textsize)
@@ -483,6 +621,9 @@ def drawCloneVsReadData( axesList, samples, samplesPerPlot, options, isAbs ):
     #get x location
     #xdata = range( 0, len(xtickLabels), 1 )
     maxy = 0
+    #markersize = 10.0
+    markersize = 8.0
+    name2line = {} 
     for i in range( len(axesList) ):
         lines = []
         sampleNames = []
@@ -498,53 +639,120 @@ def drawCloneVsReadData( axesList, samples, samplesPerPlot, options, isAbs ):
                 xtickLabels, xdata, ydata = getClonesVsReads( sample )
             else:
                 xtickLabels, xdata, ydata = getClonesVsReadsRel( sample )
-            
+           
+            #HACK discrete:
+            discreteydata = [ydata[0]]
+            if not options.cumulative:
+                for k in xrange(1, len(ydata)):
+                    discreteydata.append( ydata[k] - ydata[k-1] )
+                ydata = discreteydata
+
+
             #sampleNames.append( "%s-%d" % (sample.name, sample.totalCount))
             sampleNames.append( "%s" % (sample.name))
             maxy = max( [maxy, max(ydata)] )
 
-            l = axes.plot( xdata, ydata, color=s2c[sample.name], marker=s2m[sample.name], markeredgecolor=s2c[sample.name], markersize=8.0, linestyle='none' )
+            l = axes.plot( xdata, ydata, color=s2c[sample.name], marker=s2m[sample.name], markeredgecolor=s2c[sample.name], markersize=markersize, linestyle='none' )
             axes.plot( xdata, ydata, color=s2cLight[sample.name], linestyle='-', linewidth=0.2 )
             lines.append( l )
+            name2line[sample.name] = l 
         
         #if yaxisPcReads or yaxisPcClones:
         #    axes.plot( [-0.5, len(xtickLabels)], [90, 90], linestyle='-', linewidth=0.3, color="#CCCCCC" )
         linesDict[i] = lines
         labelsDict[i] = sampleNames
-        axes.set_title( 'Clonotypes versus Reads' )
+        if options.cumulative:
+            #axes.set_title( 'Cumulative Distribution of 50 Largest Clones', size='xx-large', weight='bold' )
+            axes.set_title( 'C. Cumulative Distribution of 50 Largest Clones', size='large', weight='bold' )
+        else:
+            axes.set_title( 'Distribution of 50 Largest Clones', size='xx-large' )
+
+    if not options.cumulative:
+        axes.set_yscale('log')
 
     for i in range( len(axesList) ):
         axes = axesList[ i ]
         #libplot.editSpine( axes )
         iseqlib.editSpine( axes )
-        axes.set_xlabel('Number of clonotypes', size = textsize)
+        axes.set_xlabel('Number of top clones', size = textsize, weight='bold')
+        if not options.cumulative:
+            axes.set_xlabel('Clone rank', size = textsize, weight='bold')
+
         if not isAbs:
-            axes.set_xlabel('Percentage of total clonotypes', size = textsize)
-        axes.set_ylabel('Percentage of total reads', size=textsize)
-        legend = pyplot.legend( linesDict[i], labelsDict[i], numpoints=1, prop=fontP, loc="best" )
-        legend._drawFrame = False
+            axes.set_xlabel('Percentage of total clones', size = textsize, weight='bold')
+        axes.set_ylabel('Frequency (% of total sequences)', size = textsize, weight= 'bold')
+        #legend = pyplot.legend( linesDict[i], labelsDict[i], numpoints=1, prop=fontP, loc="best" )
+        
+        ##HACK
+        #labelorder = ['as15D', 'as20D', 'asBD', 'asBDdraw2', 'as8D', 'as16D', 'as1D', 'as11D']
+        #currlabels = []
+        #currlines = []
+        #for label in labelorder:
+        #    if label in labelsDict[i]:
+        #        currlabels.append( iseqlib.properName(label) )
+        #        currlines.append(name2line[label])
+        ##legend = pyplot.legend( currlines, currlabels, numpoints=1, prop=fontP, loc="upper right" )
+        #legend = pyplot.legend( currlines, currlabels, numpoints=1, prop=fontP, loc="best" )
+        ##END HACK
+        #legend._drawFrame = False
 
         axes.xaxis.set_ticklabels( xtickLabels )
         axes.xaxis.set_ticks( xdata )
+        
         #axes.set_xlim(-0.5, len(xtickLabels))
+        
+        for label in axes.get_xticklabels():
+            #label.set_fontsize( 'large' )
+            label.set_fontsize( 'small' )
+            #label.set_rotation( 90 )
+        for label in axes.get_yticklabels():
+            #label.set_fontsize( 'large' )
+            label.set_fontsize( 'small' )
+        
+        #HACK: yaxis tick labels:
+        #ytickdata = [0.1, 1, 2.5, 5, 7.5, 10, 15, 20]
+        #for y in ytickdata:
+        #    if y == 20:
+        #        continue
+        #    if y in [0.1, 1, 10, 100]:
+        #        #axes.plot([0,50.5], [y, y], color='#838383', linestyle='-', linewidth=0.005)
+        #        axes.plot([0,50.5], [y, y], color='#BCBCBC', linestyle='-', linewidth=0.005)
+        #    else:
+        #        axes.plot([0,50.5], [y, y], color='#BCBCBC', linestyle='-.', linewidth=0.005)
+        #axes.yaxis.set_ticks(ytickdata)
+        #axes.set_ylim(0, 21)
+        #axes.yaxis.set_ticklabels([str(y) for y in ytickdata] , size='medium')
+        
+        #x ticks:
+        xticks = [1]
+        xticks.extend( xrange(5, 51, 5) )
+        axes.xaxis.set_ticks( xticks )
+        axes.xaxis.set_ticklabels( [str(x) for x in xticks] , size = 'large')
+        #x tick lines:
+        for x in xdata:
+            if x in xrange(0, 51, 5):
+                axes.plot([x,x], [0.02, maxy+5], color='#3F3F3F', linestyle='-', linewidth=0.05)
+            #else:
+            #    axes.plot([x,x], [0.02, maxy+5], color='#BCBCBC', linestyle='-.', linewidth=0.005)
+        
+        #END HACK
         if isAbs:
             #HACK
-            axes.set_xlim(0, 75)
+            axes.set_xlim(0, 50.5)
             #axes.set_xlim(0, 525)
             #axes.set_xlim(0, 10500) #before hack
         else:
             axes.set_xlim(0, 101)
+            #axes.set_xlim(-1, 51)
 
-        #axes.set_ylim(-0.05, maxy + 0.05)
+        #axes.set_ylim(0.02, maxy + 5)
+        axes.set_ylim(0, maxy + 2)
         #HACK
-        axes.set_ylim(0, maxy + 0.05)
-        for label in axes.get_xticklabels():
-            label.set_fontsize( textsize )
-            label.set_rotation( 45 )
-        for label in axes.get_yticklabels():
-            label.set_fontsize( textsize )
-        axes.yaxis.grid(b=True, color="#CCCCCC", linestyle='-', linewidth=0.005)
-        axes.xaxis.grid(b=True, color="#CCCCCC", linestyle='-', linewidth=0.005)
+        #axes.set_ylim(-1, maxy + 2)
+
+        axes.yaxis.grid(b=True, color="#3F3F3F", linestyle='-', linewidth=0.05)
+        #axes.xaxis.grid(b=True, color="#3F3F3F", linestyle='-', linewidth=0.05)
+    
     return 
 
 def drawCloneVsRead( samples, options, isAbs ):
@@ -556,6 +764,30 @@ def drawCloneVsRead( samples, options, isAbs ):
     axesList = setUsageDistAxes( fig, len(samples), options.samplesPerPlot )
     drawCloneVsReadData( axesList, samples, options.samplesPerPlot, options, isAbs )
     #libplot.writeImage( fig, pdf, options )
+    iseqlib.writeImage( fig, pdf, options )
+
+def drawCombine( samples, options ):
+    options.out = os.path.join(options.outdir, "combine")
+    fig, pdf = iseqlib.initImage( 8.0, 12.0, options )
+    #fig, (ax1, ax2, ax3) = plt.subplots(nrows=3, ncols=1) 
+    fig.subplots_adjust(hspace=.5)
+
+    #drawCloneSizeDist( samples, options, isAbs, yaxisPcReads, yaxisPcClones, cumulative )
+    ax1 = fig.add_subplot(311)
+    drawCloneSizeData( [ax1], samples, options.samplesPerPlot, options, False, False, True, True )
+    
+    ax2 = fig.add_subplot(312)
+    drawCloneSizeData( [ax2], samples, options.samplesPerPlot, options, False, True, False, True )
+    
+    ax3 = fig.add_subplot(313)
+    #drawCloneVsRead( samples, options, True )
+    drawCloneVsReadData( [ax3], samples, options.samplesPerPlot, options, True )
+
+    #Write to output file  
+    #import matplotlib.backends.backend_pdf as pltBack
+    #pdf = None
+    #if options.outFormat == 'pdf' or options.outFormat == 'all':
+    #    pdf = pltBack.PdfPages( options.out + '.pdf' )
     iseqlib.writeImage( fig, pdf, options )
 
 def readGroup2Samples(file):
@@ -601,18 +833,20 @@ def main():
         group2samples = readGroup2Samples(options.group) 
         samples = getAvrSamples(samples, group2samples, options.cumulative)
     
-    drawCloneSizeDist( samples, options, True, False, False, options.cumulative )
-    drawCloneSizeDist( samples, options, False, False, False, options.cumulative )
-    drawCloneSizeDist( samples, options, True, False, True, options.cumulative )
-    drawCloneSizeDist( samples, options, False, False, True, options.cumulative )
-    drawCloneSizeDist( samples, options, True, True, False, options.cumulative )
-    drawCloneSizeDist( samples, options, False, True, False, options.cumulative )
+    #drawCloneSizeDist( samples, options, True, False, False, options.cumulative )
+    #drawCloneSizeDist( samples, options, False, False, False, options.cumulative )
+    #drawCloneSizeDist( samples, options, True, False, True, options.cumulative )
+    #drawCloneSizeDist( samples, options, False, False, True, options.cumulative )
+    #drawCloneSizeDist( samples, options, True, True, False, options.cumulative )
+    #drawCloneSizeDist( samples, options, False, True, False, options.cumulative )
     
     #drawCloneSizeDist( samples, options, options.isAbs, options.yaxisPcReads, options.yaxisPcClones, options.cumulative )
     
-    if not options.group:
-        drawCloneVsRead( samples, options, True )
-        drawCloneVsRead( samples, options, False )
+    #if not options.group:
+    #    drawCloneVsRead( samples, options, True )
+    #    drawCloneVsRead( samples, options, False )
+
+    drawCombine( samples, options )
 
 if __name__ == "__main__":
     main()

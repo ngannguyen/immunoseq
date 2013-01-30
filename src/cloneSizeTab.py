@@ -100,13 +100,18 @@ def getAvrSamples(samples, group2samples):
         avrSamples.append(groupAvrSample)
     return avrSamples
 
-def tabHeader(f):
+def tabHeader(f, simpson):
     f.write("\\begin{table}\n") 
     f.write("\\centering\n")
     f.write("\\scalebox{1}{%\n")
-    f.write("\\begin{tabular}{c|r|r|r}\n")
-    f.write("\\hline\n")
-    f.write("\\cellcolor[gray]{0.9} Sample &\\cellcolor[gray]{0.9} Clones &\\cellcolor[gray]{0.9} Total Reads &\\cellcolor[gray]{0.9} Simpson Index\\\\\n")
+    if simpson:
+        f.write("\\begin{tabular}{c|r|r|r}\n")
+        f.write("\\hline\n")
+        f.write("\\cellcolor[gray]{0.9} Sample &\\cellcolor[gray]{0.9} Clones &\\cellcolor[gray]{0.9} Total Reads &\\cellcolor[gray]{0.9} Simpson Index\\\\\n")
+    else:
+        f.write("\\begin{tabular}{c|r|r}\n")
+        f.write("\\hline\n")
+        f.write("\\cellcolor[gray]{0.9} Sample &\\cellcolor[gray]{0.9} Clones &\\cellcolor[gray]{0.9} Total Reads \\\\\n")
     f.write("\\hline\n")
 
 def sortSamplesByGroup(samples, groupsamples, group2samples):
@@ -123,42 +128,64 @@ def sortSamplesByGroup(samples, groupsamples, group2samples):
                 sortedSamples.append(gs)
     return sortedSamples
     
-def tab(f, samples, groupsamples, group2samples):
+def tab(f, samples, groupsamples, group2samples, simpson):
     if len(groupsamples) > 0:
         samples = sortSamplesByGroup(samples, groupsamples, group2samples)
+
     for s in samples:
         if s.name in group2samples:
-            f.write("\\cellcolor[gray]{0.9} Avr %s & \\cellcolor[gray]{0.9} %s & \\cellcolor[gray]{0.9} %s & \\cellcolor[gray]{0.9} %.3f\\\\\n" %(s.name.replace('_', "-"), iseqlib.prettyInt(s.totalClones), iseqlib.prettyInt(s.totalCount), s.simpson ))
+            f.write("\\cellcolor[gray]{0.9} Avr %s & \\cellcolor[gray]{0.9} %s & \\cellcolor[gray]{0.9} %s" %(s.name.replace('_', "-"), iseqlib.prettyInt(s.totalClones), iseqlib.prettyInt(s.totalCount)))
+            if simpson:
+                f.write("& \\cellcolor[gray]{0.9} %.3f" % s.simpson)
+            f.write("\\\\\n")
             f.write("\\hline\n")
         else:
-            f.write("%s & %s & %s & %.3f\\\\\n" %(s.name.replace('_', "-"), iseqlib.prettyInt(s.totalClones), iseqlib.prettyInt(s.totalCount), s.simpson))
+            f.write("%s & %s & %s" %(s.name.replace('_', "-"), iseqlib.prettyInt(s.totalClones), iseqlib.prettyInt(s.totalCount)))
+            if simpson:
+                f.write("& %.3f" %s.simpson)
+            f.write("\\\\\n")
+
     if len(groupsamples) == 0:
         f.write("\\hline\n")
 
-def getClonesizeLatexTab(samples, groupsamples, group2samples, outfile): 
+def getClonesizeLatexTab(samples, groupsamples, group2samples, outfile, simpson): 
     f = open(outfile, 'w')
     iseqlib.writeDocumentStart(f)
 
-    tabHeader(f)
-    tab(f, samples, groupsamples, group2samples)
+    tabHeader(f, simpson)
+    tab(f, samples, groupsamples, group2samples, simpson)
 
     label = ''
-    captionStr = "TCRB sequence statistics. Columns: `Sample': sample name, `Clones': number of unique clones, `Total Reads': number of total reads, `Simpson Index': Simpson diversity index, which is equivalent with the probability that any two sequences (reads) belong to two different clones. Rows: different samples, where the shaded rows show the average of statistics of each group."
+
+    captionStr = "TCRB sequence statistics. Columns: `Sample': sample name, `Clones': number of unique clones, `Total Reads': number of total reads. Rows: different samples, where the shaded rows show the average of statistics of each group."
+    if simpson:
+        captionStr = "TCRB sequence statistics. Columns: `Sample': sample name, `Clones': number of unique clones, `Total Reads': number of total reads, `Simpson Index': Simpson diversity index, which is equivalent with the probability that any two sequences (reads) belong to two different clones. Rows: different samples, where the shaded rows show the average of statistics of each group."
     iseqlib.tableCloser(f, captionStr, label)
     iseqlib.writeDocumentEnd(f)
     f.close()
 
-def getClonesizeTextTab(samples, groupsamples, group2samples, outfile):
+def getClonesizeTextTab(samples, groupsamples, group2samples, outfile, simpson):
     if len(groupsamples) >0:
         samples = sortSamplesByGroup(samples, groupsamples, group2samples)
+    else:
+        samples = sorted(samples, key=lambda sample: sample.totalCount) 
     f = open(outfile, 'w')
-    f.write("Sample\tClones\tTotal Reads\tSimpson Index\n")
+    if simpson:
+        f.write("Sample\tClones\tTotal Reads\tSimpson Index\n")
+    else:
+        f.write("Sample\tClones\tTotal Reads\n")
     for s in samples:
         if s.name in group2samples:
-            f.write("Avr %s\t%s\t%s\t%.3f\n" %(s.name.replace('_', "-"), iseqlib.prettyInt(s.totalClones), iseqlib.prettyInt(s.totalCount), s.simpson))
+            f.write("Avr %s\t%s\t%s" %(s.name.replace('_', "-"), iseqlib.prettyInt(s.totalClones), iseqlib.prettyInt(s.totalCount)))
+            if simpson:
+                f.write("\t%.3f" %s.simpson)
+            f.write("\n")
             f.write("#\n")
         else:
-            f.write("%s\t%s\t%s\t%.3f\n" %(s.name.replace('_', "-"), iseqlib.prettyInt(s.totalClones), iseqlib.prettyInt(s.totalCount), s.simpson))
+            f.write("%s\t%s\t%s" %(s.name.replace('_', "-"), iseqlib.prettyInt(s.totalClones), iseqlib.prettyInt(s.totalCount)))
+            if simpson:
+                f.write("\t%.3f" %s.simpson)
+            f.write("\n")
     f.close()
 
 def readGroup2Samples(file):
@@ -182,6 +209,7 @@ def initOptions( parser ):
     parser.add_option('-c', '--cutoff', dest='cutoff', type='int', default=1, help="Minimum count. Default = %default")
     parser.add_option('-g', '--group', dest='group', help='Group2samples file (Format: group<space>commaSeparatedListOfSamples. If specified, only draw average of each group.')
     parser.add_option('-t', '--text', dest='text', action='store_true', default=False, help='If specified, output is a tab limited textfile instead of a latex file. Default = %default')
+    parser.add_option('-s', '--simpsonIndex', dest='simpson', action='store_true', default=False, help='If specified, reports the Simpson Index of each sample')
 
 def main():
     usage = ('Usage: %prog [options] inputDirectory\n')
@@ -198,9 +226,9 @@ def main():
         group2samples = readGroup2Samples(options.group) 
         groupsamples = getAvrSamples(samples, group2samples)
     if options.text:
-        getClonesizeTextTab(samples, groupsamples, group2samples, options.outfile)
+        getClonesizeTextTab(samples, groupsamples, group2samples, options.outfile, options.simpson)
     else:
-        getClonesizeLatexTab(samples, groupsamples, group2samples, options.outfile)
+        getClonesizeLatexTab(samples, groupsamples, group2samples, options.outfile, options.simpson)
      
 if __name__ == "__main__":
     main()
